@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Donor Dashboard</title>
+</head>
+<body>
+
+<h2>Welcome, Donor</h2>
+
+    <a href="{% url 'post_food' %}">
+    <button type="button">+ Post Surplus Food</button>
+</a>
+
+</a>
+
+<h3>Your Food Requests</h3>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>Food Type</th>
+        <th>Quantity</th>
+        <th>Status</th>
+    </tr>
+    <tr>
+        <td>Veg</td>
+        <td>50 plates</td>
+        <td>Waiting</td>
+    </tr>
+</table>
+
+<br>
+<a href="{% url 'index' %}">Logout</a>
+
+</body>
+</html>
