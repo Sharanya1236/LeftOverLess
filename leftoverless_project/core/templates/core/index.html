@@ -1,15 +1,233 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>LeftOverLess</title>
-</head>
-<body>
-    <h1>LeftOverLess</h1>
-    <p>Reduce Food Waste. Feed Lives.</p>
-    <a href="{% url 'donor_login' %}">I Have Surplus Food</a>
-    <a href="{% url 'service_login' %}">I Want to Serve / Collect Food</a>
-    <a href="{% url 'service_login' %}">I Want to Serve / Collect Food</a>
+<meta charset="UTF-8">
+<title>LeftOverLess</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #134e5e, #71b280);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: #fff;
+}
+.quote {
+    position: absolute;
+    background: rgba(255,255,255,0.16);
+    backdrop-filter: blur(8px);
+    padding: 12px 18px;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    opacity: 0;
+    animation: quoteFade 9s infinite;
+}
+
+/* Positions */
+.q1 { top: 12%; left: 6%; animation-delay: 0s; }
+.q2 { bottom: 15%; right: 6%; animation-delay: 3s; }
+.q3 { top: 22%; right: 8%; animation-delay: 6s; }
+.q4 { bottom: 28%; left: 8%; animation-delay: 9s; }
+.q5 { top: 50%; left: 3%; animation-delay: 12s; }
+
+@keyframes quoteFade {
+    0%   { opacity: 0; transform: translateY(12px); }
+    10%  { opacity: 1; transform: translateY(0); }
+    35%  { opacity: 1; }
+    45%  { opacity: 0; }
+    100% { opacity: 0; }
+}
+
+
+
+/* Main card */
+.container {
+    background: rgba(255,255,255,0.14);
+    backdrop-filter: blur(14px);
+    padding: 45px 35px;
+    border-radius: 22px;
+    text-align: center;
+    width: 90%;
+    max-width: 440px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+    animation: fadeUp 1.2s ease forwards;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h1 {
+    font-size: 2.6rem;
+    margin-bottom: 10px;
+}
+
+.tagline {
+    font-size: 1.1rem;
+    margin-bottom: 25px;
+    opacity: 0.95;
+}
+
+/* Illustration icons */
+.illustration {
+    display: flex;
+    justify-content: space-around;
+    margin: 25px 0 30px;
+}
+
+.icon {
+    font-size: 2.4rem;
+    animation: pulse 2.5s infinite;
+}
+
+.icon.waste {
+    opacity: 0.5;
+}
+
+.icon.donate {
+    animation-delay: 1.2s;
+}
+
+@keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+/* Buttons */
+.btn {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    margin: 12px 0;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-register {
+    background: #ffffff;
+    color: #1e8449;
+}
+
+.btn-register:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+}
+
+.btn-login {
+    border: 2px solid #ffffff;
+    color: #ffffff;
+}
+
+.btn-login:hover {
+    background: #ffffff;
+    color: #1e8449;
+    transform: translateY(-3px);
+}
+
+.footer {
+    margin-top: 22px;
+    font-size: 0.85rem;
+    opacity: 0.85;
+}
+.divider {
+    width: 60%;
+    height: 2px;
+    margin: 25px auto 30px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,0.9),
+        transparent
+    );
+    animation: glow 2.5s infinite ease-in-out;
+}
+
+@keyframes glow {
+    0% { opacity: 0.3; }
+    50% { opacity: 1; }
+    100% { opacity: 0.3; }
+}
+.q-top {
+    top: 6%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    font-size: 0.85rem;
+    animation: softFade 12s infinite;
+}
+
+.q-bottom {
+    bottom: 6%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    font-size: 0.85rem;
+    animation: softFade 12s infinite;
+    animation-delay: 6s;
+}
+
+@keyframes softFade {
+    0%   { opacity: 0; }
+    15%  { opacity: 0.6; }
+    40%  { opacity: 0.6; }
+    55%  { opacity: 0; }
+    100% { opacity: 0; }
+}
+
+
+</style>
+</head>
+
+<body>
+
+<!-- Floating quotes -->
+<div class="quote q1">“Wasted food is wasted hope.”</div>
+<div class="quote q2">“One meal can change a life.”</div>
+<div class="quote q3">“Food saved is dignity preserved.”</div>
+<div class="quote q4">“Hunger is not a lack of food, but a lack of sharing.”</div>
+<div class="quote q5">“Donate food. Nourish lives.”</div>
+<div class="quote q-top">“If you can’t feed a hundred people, feed one.”</div>
+<div class="quote q-bottom">“Small acts of sharing create big change.”</div>
+
+
+
+<!-- Main card -->
+<div class="container">
+    <h1>LeftOverLess</h1>
+    <div class="tagline">
+        Don’t waste food.<br>
+        <strong>Donate it. Deliver hope.</strong>
+    </div>
+
+<div class="divider"></div>
+
+
+    <a href="{% url 'register' %}" class="btn btn-register">
+        Get Started
+    </a>
+
+    <a href="{% url 'login' %}" class="btn btn-login">
+        Login
+    </a>
+
+    <div class="footer">
+        Because every meal matters 🌍
+    </div>
+</div>
 
 </body>
 </html>
