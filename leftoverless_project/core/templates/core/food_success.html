@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Success | LeftOverLess</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  min-height:100vh;
+  background:linear-gradient(135deg,#134e5e,#71b280);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'Poppins',sans-serif;
+  color:#fff;
+}
+
+.box{
+  background:rgba(255,255,255,0.15);
+  backdrop-filter:blur(14px);
+  padding:40px;
+  border-radius:22px;
+  text-align:center;
+  width:90%;
+  max-width:420px;
+  box-shadow:0 25px 60px rgba(0,0,0,0.3);
+}
+
+h2{
+  margin-bottom:10px;
+}
+
+p{
+  font-size:0.95rem;
+  opacity:0.9;
+  margin-bottom:25px;
+}
+
+.btn{
+  display:block;
+  margin:10px 0;
+  padding:14px;
+  background:#ffffff;
+  color:#1e8449;
+  text-decoration:none;
+  border-radius:14px;
+  font-weight:600;
+  transition:.3s;
+}
+
+.btn:hover{
+  transform:translateY(-3px);
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>Food Posted Successfully 🎉</h2>
+  <p>Your donation is now visible to receivers & volunteers.</p>
+
+  <a class="btn" href="{% url 'donor_dashboard' %}">Go to Dashboard</a>
+  <a class="btn" href="{% url 'add_food' %}">Add Another Food</a>
+  <a class="btn" href="{% url 'my_donations' %}">View My Donations</a>
+</div>
+
+</body>
+</html>

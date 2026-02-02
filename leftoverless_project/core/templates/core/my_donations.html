@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Donations | LeftOverLess</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  min-height:100vh;
+  background:linear-gradient(135deg,#134e5e,#71b280);
+  font-family:'Poppins',sans-serif;
+  color:#fff;
+}
+
+.container{
+  padding:30px;
+  max-width:1000px;
+  margin:auto;
+}
+
+h2{
+  text-align:center;
+  margin-bottom:25px;
+}
+
+.card{
+  background:rgba(255,255,255,0.15);
+  backdrop-filter:blur(14px);
+  padding:20px;
+  border-radius:18px;
+  margin-bottom:18px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.25);
+}
+
+.row{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  gap:12px;
+  align-items:center;
+}
+
+.food-name{
+  font-size:1.1rem;
+  font-weight:600;
+}
+
+.small{
+  font-size:.85rem;
+  opacity:.85;
+}
+
+.status{
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:.75rem;
+  font-weight:600;
+  display:inline-block;
+  text-align:center;
+}
+
+/* Status colors */
+.available{background:#2ecc71}
+.requested{background:#f1c40f;color:#000}
+.delivered{background:#3498db}
+.expired{background:#e74c3c}
+.cancelled{background:#7f8c8d}
+
+.btn{
+  padding:8px 14px;
+  border-radius:12px;
+  background:#fff;
+  color:#1e8449;
+  text-decoration:none;
+  font-size:.8rem;
+  font-weight:600;
+}
+
+.back{
+  display:block;
+  text-align:center;
+  margin-top:25px;
+  color:#fff;
+  text-decoration:underline;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>My Donations</h2>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="card">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  {% for food in foods %}
+  <div class="card">
+    <div class="row">
+      <div>
+        <div class="food-name">{{ food.food_name }}</div>
+        <div class="small">
+          {{ food.food_type }} • {{ food.quantity }} people<br>
+          Expires: {{ food.expiry_time|date:"d M Y, H:i" }}
+        </div>
+      </div>
+
+      <div>
+        <span class="status {{ food.status }}">{{ food.status|title }}</span>
+      </div>
+
+      <div>
+        {% if food.status == "available" %}
+          <a class="btn" href="{% url 'cancel_donation' food.id %}">Cancel</a>
+        {% else %}
+          —
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% empty %}
+    <div class="card">No donations yet.</div>
+  {% endfor %}
+
+  <a class="back" href="{% url 'donor_dashboard' %}">← Back to Dashboard</a>
+</div>
+
+</body>
+</html>
