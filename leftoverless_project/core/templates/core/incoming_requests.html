@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Incoming Requests | LeftOverLess</title>
+
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+
+<body>
+
+<div class="page">
+
+  <h1>📥 Incoming Food Requests</h1>
+  <p>Approve or reject requests from receivers</p>
+
+  {% if requests %}
+  <div class="request-grid">
+
+    {% for food in requests %}
+    <div class="card">
+
+      <div class="card-header">
+        <h3>{{ food.food_name }}</h3>
+        <span class="status-badge requested">Requested</span>
+      </div>
+
+      <div class="card-body">
+        <p>🍽 Quantity: {{ food.quantity }} people</p>
+        <p>📍 Pickup Address: {{ food.address }}</p>
+
+        {% if food.pickup_type %}
+        <p>
+          🚚 Pickup Type:
+          <strong>
+            {{ food.pickup_type|title }}
+          </strong>
+        </p>
+        {% endif %}
+      </div>
+
+      <div class="card-actions">
+        <form method="post" action="{% url 'approve_request' food.id %}">
+          {% csrf_token %}
+          <button class="btn btn-primary">Approve</button>
+        </form>
+
+        <form method="post" action="{% url 'reject_request' food.id %}">
+          {% csrf_token %}
+          <button class="btn btn-danger">Reject</button>
+        </form>
+      </div>
+
+    </div>
+    {% endfor %}
+
+  </div>
+  {% else %}
+    <div class="card">
+      <p>No incoming requests yet.</p>
+    </div>
+  {% endif %}
+
+  <a href="{% url 'donor_dashboard' %}" class="back-link">← Back to Dashboard</a>
+
+</div>
+
+</body>
+</html>

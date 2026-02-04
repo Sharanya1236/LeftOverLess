@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils import timezone
+
+
 class Profile(models.Model):
     ROLE_CHOICES = (
         ('donor', 'Donor'),
@@ -16,10 +17,6 @@ class Profile(models.Model):
         return f"{self.full_name} ({self.role})"
 
 
-from django.db import models
-from django.contrib.auth.models import User
-
-
 class Food(models.Model):
 
     STATUS_CHOICES = [
@@ -32,7 +29,32 @@ class Food(models.Model):
         ('expired', 'Expired'),
     ]
 
-    donor = models.ForeignKey(User, on_delete=models.CASCADE)
+    # ✅ ADD THIS (YOU MISSED THIS)
+    PICKUP_CHOICES = [
+        ('self', 'Self Pickup'),
+        ('volunteer', 'Volunteer Delivery'),
+    ]
+
+    donor = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='donations'
+    )
+
+    requested_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='requests'
+    )
+
+    pickup_type = models.CharField(
+        max_length=20,
+        choices=PICKUP_CHOICES,
+        null=True,
+        blank=True
+    )
 
     food_name = models.CharField(max_length=100)
     food_type = models.CharField(max_length=50)
@@ -44,6 +66,7 @@ class Food(models.Model):
     address = models.TextField()
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
+
     notes = models.TextField(blank=True)
 
     status = models.CharField(
@@ -56,7 +79,3 @@ class Food(models.Model):
 
     def __str__(self):
         return f"{self.food_name} ({self.status})"
-
-
-latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)

@@ -7,7 +7,12 @@ from django.contrib import messages
 
 from django.db.models import Q
 from .models import Profile, Food
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
+from .models import Food
+from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import redirect
+
 
 def index(request):
     return render(request, "core/index.html")
@@ -190,3 +195,116 @@ def receiver_dashboard(request):
 @login_required
 def employee_dashboard(request):
     return render(request, "core/employee_dashboard.html")
+
+
+# --------------------------------- LOGOUT VIEW ----------------------------------
+def logout_view(request):
+    logout(request)
+    return redirect("login")
+
+# ----------------------- Available Food View -----------------------
+
+@login_required
+def available_food(request):
+    foods = Food.objects.filter(status="available").order_by("expiry_time")
+    return render(request, "core/available_food.html", {"foods": foods})
+
+# ------------------------ Request Food View -----------------------
+@login_required
+def request_food(request, food_id):
+    if request.method == "POST":
+        food = get_object_or_404(Food, id=food_id)
+
+        food.status = "requested"
+        food.requested_by = request.user
+        food.pickup_type = request.POST.get("pickup_type")
+        food.save()
+
+        messages.success(request, "Food requested successfully")
+        return redirect("my_requests")
+
+    return redirect("available_food")
+
+
+@login_required
+def donor_incoming_requests(request):
+    foods = Food.objects.filter(
+        donor=request.user,
+        status='requested'
+    ).select_related('requested_by')
+
+    return render(
+        request,
+        'core/incoming_requests.html',
+        {'foods': foods}
+    )
+
+
+
+@login_required
+def reject_request(request, food_id):
+    food = get_object_or_404(Food, id=food_id, donor=request.user)
+    food.status = 'available'
+    food.save()
+    return redirect('incoming_requests')
+
+# ------------------------- My Requests View -----------------------
+@login_required
+def my_requests(request):
+    foods = Food.objects.filter(
+        requested_by=request.user
+    ).order_by('-created_at')
+
+    return render(request, 'core/my_requests.html', {
+        'foods': foods
+    })
+
+# --------------------------- Reject Request View -----------------------
+@login_required
+def reject_request(request, food_id):
+    food = get_object_or_404(Food, id=food_id, donor=request.user)
+    food.status = 'available'
+    food.requested_by = None
+    food.save()
+
+    messages.error(request, "❌ Request rejected.")
+    return redirect('incoming_requests')
+
+# --------------------------- Donor Requests View -----------------------
+from django.contrib.auth.decorators import login_required
+from core.models import Food
+
+@login_required
+def donor_requests(request):
+    foods = Food.objects.filter(
+        donor=request.user,
+        status='requested'
+    ).select_related('requested_by')
+
+    return render(request, 'core/donor_requests.html', {
+        'foods': foods
+    })
+
+# ------------------------------ Approve Request View -----------------------
+@login_required
+def approve_request(request, food_id):
+    food = Food.objects.get(id=food_id, donor=request.user)
+    food.status = 'assigned' if food.pickup_type == 'volunteer' else 'picked'
+    food.save()
+
+    messages.success(request, "Request approved successfully.")
+    return redirect('donor_requests')
+
+# ------------------------------- Reject Request View -----------------------
+
+@login_required
+def reject_request(request, food_id):
+    food = Food.objects.get(id=food_id, donor=request.user)
+    food.status = 'cancelled'
+    food.save()
+
+    messages.error(request, "Request rejected.")
+    return redirect('donor_requests')
+
+# --------------------------------- My Requests View ---------------------------
+

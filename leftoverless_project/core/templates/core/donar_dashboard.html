@@ -1,9 +1,13 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Donor Dashboard | LeftOverLess</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
 
 <style>
 *{
@@ -13,11 +17,6 @@
     font-family:'Poppins', sans-serif;
 }
 
-body{
-    min-height:100vh;
-    background:linear-gradient(135deg,#134e5e,#71b280);
-    color:#fff;
-}
 
 /* Header */
 .header{
@@ -164,6 +163,7 @@ body{
         <h3>Expired</h3>
         <p>{{ expired }}</p>
     </div>
+    
 </div>
 
 
@@ -180,6 +180,12 @@ body{
             <p>Track all your donations and their status.</p>
             <a href="{% url 'my_donations' %}">View Donations</a>
         </div>
+        <div class="action-card">
+            <h3>Incoming Requests</h3>
+            <p>View and manage food requests from receivers.</p>
+            <a href="{% url 'donor_incoming_requests' %}"> Incoming Requests </a>
+
+  </div>
     </div>
 
 </div>

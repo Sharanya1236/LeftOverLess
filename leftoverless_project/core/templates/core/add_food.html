@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,236 +6,184 @@
 <title>Add Food | LeftOverLess</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
 
+<style>
+/* Page specific fixes only */
 body{
   min-height:100vh;
-  background:linear-gradient(135deg,#134e5e,#71b280);
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  margin:0;
+  font-family:'Segoe UI', system-ui, sans-serif;
+  background: linear-gradient(135deg, #134e5e, #71b280);
   color:#fff;
 }
-
-.container{
-  width:92%;
-  max-width:520px;
-  background:rgba(255,255,255,0.14);
-  backdrop-filter:blur(14px);
-  padding:35px;
-  border-radius:22px;
-  box-shadow:0 25px 60px rgba(0,0,0,0.3);
+.form-card{
+  max-width: 650px;
+  margin: auto;
 }
 
-h2{
-  text-align:center;
-  margin-bottom:8px;
-  font-size:1.8rem;
+.form-group{
+  margin-bottom: 16px;
 }
 
-.subtitle{
-  text-align:center;
-  font-size:0.9rem;
-  opacity:0.9;
-  margin-bottom:22px;
-}
-
-label{
-  display:block;
-  margin-top:14px;
-  font-size:0.85rem;
-  opacity:0.9;
+.form-row{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
 }
 
 input, select, textarea{
-  width:100%;
-  padding:12px;
-  margin-top:6px;
-  border-radius:10px;
-  border:none;
-  outline:none;
-  font-size:0.9rem;
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  font-size: 14px;
 }
 
-textarea{resize:none;height:70px}
-
-.row{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
+textarea{
+  resize: none;
+  height: 80px;
 }
 
-button{
-  width:100%;
-  padding:14px;
-  margin-top:22px;
-  border-radius:14px;
-  border:none;
-  font-size:1rem;
-  font-weight:600;
-  background:#ffffff;
-  color:#1e8449;
-  cursor:pointer;
-  transition:all .3s ease;
+label{
+  font-size: 14px;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
 }
 
-button:hover{
-  transform:translateY(-3px);
-  box-shadow:0 12px 25px rgba(0,0,0,.25);
+#map{
+  height: 260px;
+  border-radius: 14px;
+  margin-top: 10px;
 }
 
-.back{
-  display:block;
-  text-align:center;
-  margin-top:14px;
-  font-size:.85rem;
-  color:#fff;
-  text-decoration:underline;
+.actions{
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
 }
 
-.error{
-  margin-top:12px;
-  background:rgba(255,0,0,.2);
-  padding:10px;
-  border-radius:10px;
-  font-size:.85rem;
-}
-
-.success{
-  margin-top:12px;
-  background:rgba(0,255,0,.2);
-  padding:10px;
-  border-radius:10px;
-  font-size:.85rem;
+.actions button,
+.actions a{
+  flex: 1;
+  text-align: center;
 }
 </style>
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-/>
-
 </head>
+
+<body>
+
+<div class="container">
+
+  <h2 align="center">🍱 Add Food Donation</h2>
+  <p align ="center">Donate surplus food before it expires</p>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="card form-card">
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label>Food Name</label>
+        <input type="text" name="food_name" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Food Type</label>
+          <select name="food_type" required>
+            <option value="">Select</option>
+            <option value="Veg">Veg</option>
+            <option value="Non-Veg">Non-Veg</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Quantity (people)</label>
+          <input type="number" name="quantity" min="1" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Prepared Time</label>
+          <input type="datetime-local" name="prepared_time" required>
+        </div>
+
+        <div class="form-group">
+          <label>Expiry Time</label>
+          <input type="datetime-local" name="expiry_time" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Pickup Address</label>
+        <textarea name="address" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Pickup Location</label>
+        <div id="map"></div>
+      </div>
+
+      <input type="hidden" name="latitude" id="lat">
+      <input type="hidden" name="longitude" id="lng">
+
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <textarea name="notes"></textarea>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn btn-primary">Post Food</button>
+        <a href="{% url 'donor_dashboard' %}" class="btn btn-danger">Back</a>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
 let map, marker;
 
 function initMap(lat, lng){
-  map = L.map('map').setView([lat, lng], 15);
+  map = L.map('map').setView([lat, lng], 14);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
+    attribution: '© OpenStreetMap'
   }).addTo(map);
 
-  marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+  marker = L.marker([lat, lng], { draggable:true }).addTo(map);
 
   updateCoords(lat, lng);
 
-  marker.on('dragend', function () {
+  marker.on('dragend', function(){
     const pos = marker.getLatLng();
     updateCoords(pos.lat, pos.lng);
   });
 }
 
 function updateCoords(lat, lng){
-  document.getElementById("lat").value = lat;
-  document.getElementById("lng").value = lng;
+  document.getElementById('lat').value = lat;
+  document.getElementById('lng').value = lng;
 }
 
-/* Get user's real location */
 navigator.geolocation.getCurrentPosition(
-  (position) => {
-    initMap(position.coords.latitude, position.coords.longitude);
-  },
-  () => {
-    /* fallback if location blocked */
-    initMap(17.385044, 78.486671); // Hyderabad
-  }
+  (pos) => initMap(pos.coords.latitude, pos.coords.longitude),
+  () => initMap(17.3850, 78.4867) // fallback Hyderabad
 );
-</script>
-
-<body>
-
-<div class="container">
-  <h2>Add Food</h2>
-  <div class="subtitle">Donate surplus food before it expires</div>
-
-{% if messages %}
-  {% for message in messages %}
-    {% if "food" in message.message|lower %}
-      <div class="{{ message.tags }}">{{ message }}</div>
-    {% endif %}
-  {% endfor %}
-{% endif %}
-
-
-  <form method="post" onsubmit="return validateTime()">
-    {% csrf_token %}
-
-    <label>Food Name</label>
-    <input type="text" name="food_name" required>
-
-    <div class="row">
-      <div>
-        <label>Food Type</label>
-        <select name="food_type" required>
-          <option value="">Select</option>
-          <option value="Veg">Veg</option>
-          <option value="Non-Veg">Non-Veg</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Quantity (people)</label>
-        <input type="number" name="quantity" min="1" required>
-      </div>
-    </div>
-
-    <div class="row">
-      <div>
-        <label>Prepared Time</label>
-        <input type="datetime-local" name="prepared_time" id="prepared" required>
-      </div>
-
-      <div>
-        <label>Expiry Time</label>
-        <input type="datetime-local" name="expiry_time" id="expiry" required>
-      </div>
-    </div>
-
-    <label>Pickup Address</label>
-    <textarea name="address" required></textarea>
-    <label>Pickup Location</label>
-    <div id="map" style="
-    width:100%;
-    height:300px;
-    border-radius:14px;
-  margin-top:8px;">
-</div>
-
-<input type="hidden" name="latitude" id="lat">
-<input type="hidden" name="longitude" id="lng">
-
-
-    <label>Notes (optional)</label>
-    <textarea name="notes"></textarea>
-
-    <button type="submit">Post Food</button>
-  </form>
-
-  <a class="back" href="{% url 'donor_dashboard' %}">← Back to Dashboard</a>
-</div>
-
-<script>
-function validateTime(){
-  const p = new Date(document.getElementById("prepared").value);
-  const e = new Date(document.getElementById("expiry").value);
-  if(e <= p){
-    alert("Expiry time must be after prepared time");
-    return false;
-  }
-  return true;
-}
 </script>
 
 </body>

@@ -1,0 +1,106 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Available Food | LeftOverLess</title>
+
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+</head>
+
+<body class="bg-gradient">
+
+<div class="container">
+
+  <!-- 🔔 Notifications -->
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert {{ message.tags }}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <h1>🍽 Available Food Near You</h1>
+  <p class="subtitle">Browse surplus food and request what you need</p>
+
+  <div class="grid">
+
+    {% for food in foods %}
+    <div class="card">
+
+      <!-- Status Badge -->
+      <span class="badge badge-{{ food.status }}">
+        {{ food.status|title }}
+      </span>
+
+      <h3>{{ food.food_name }}</h3>
+
+      <p>🍴 Quantity: {{ food.quantity }} people</p>
+      <p>⏰ Expiry: {{ food.expiry_time }}</p>
+      <p>📍 {{ food.address }}</p>
+
+      {% if food.latitude and food.longitude %}
+        <div class="map-box" id="map-{{ food.id }}"></div>
+      {% endif %}
+
+      <!-- Request Logic -->
+      {% if food.status == 'available' %}
+      <form method="post" action="{% url 'request_food' food.id %}">
+        {% csrf_token %}
+
+        <div style="margin-top:12px">
+          <label>
+            <input type="radio" name="pickup_type" value="self" required>
+            🏃 Self Pickup
+          </label><br>
+
+          <label>
+            <input type="radio" name="pickup_type" value="volunteer">
+            🚴 Need Volunteer Delivery
+          </label>
+        </div>
+
+        <button class="btn btn-primary" style="margin-top:12px">
+          Confirm Request
+        </button>
+      </form>
+      {% endif %}
+
+    </div>
+    {% empty %}
+      <p>No food available right now.</p>
+    {% endfor %}
+
+  </div>
+
+  <br>
+  <a href="{% url 'receiver_dashboard' %}" style="color:white">← Back to Dashboard</a>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+{% for food in foods %}
+{% if food.latitude and food.longitude %}
+  var map{{ food.id }} = L.map('map-{{ food.id }}')
+    .setView([{{ food.latitude }}, {{ food.longitude }}], 14);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map{{ food.id }});
+
+  L.marker([{{ food.latitude }}, {{ food.longitude }}])
+    .addTo(map{{ food.id }})
+    .bindPopup("Pickup Location");
+{% endif %}
+{% endfor %}
+</script>
+
+</body>
+</html>
