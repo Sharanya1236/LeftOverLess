@@ -1,51 +1,35 @@
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>My Requests | LeftOverLess</title>
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
 
-  <link rel="stylesheet" href="{% static 'css/main.css' %}">
-</head>
+<div class="container">
+  <h1 class="page-title">📦 My Requests</h1>
 
-<body>
-  <!-- PAGE WRAPPER -->
-  <div class="page-bg">
-    <div class="container">
+  {% for food in foods %}
+    <div class="card">
+      <h3>{{ food.food_name }}</h3>
+      <p>📍 {{ food.address }}</p>
 
-      <div class="page-header">
-        <h1>🍽 My Food Requests</h1>
-      </div>
+      <!-- STATUS UI -->
+      {% if food.status == 'requested' %}
+        <span class="status pending">⏳ Waiting for approval</span>
 
-      {% if foods %}
-        <div class="food-grid">
-          {% for food in foods %}
-            <div class="food-card">
+      {% elif food.status == 'assigned' %}
+        <span class="status assigned">🚴 Volunteer assigned</span>
 
-              <h3>{{ food.food_name }}</h3>
-              <p>🍴 Quantity: {{ food.quantity }} people</p>
-              <p>📍 {{ food.address }}</p>
+      {% elif food.status == 'picked' %}
+        <span class="status onway">🚚 On the way</span>
 
-              <span class="status-label {{ food.status }}">
-                {{ food.status|title }}
-              </span>
+      {% elif food.status == 'delivered' %}
+        <span class="status delivered">✅ Delivered</span>
 
-            </div>
-          {% endfor %}
-           <a href="{% url 'receiver_dashboard' %}" class="back-link">
-          ← Back to Dashboard
-        </a>
-        </div>
-      {% else %}
-        <div class="empty-state">
-          <p>No requests yet.</p>
-          <a href="{% url 'available_food' %}" class="btn">
-            Browse Available Food
-          </a>
-        </div>
+      {% elif food.status == 'cancelled' %}
+        <span class="status cancelled">❌ Cancelled</span>
       {% endif %}
 
     </div>
-  </div>
-</body>
-</html>
+  {% empty %}
+    <p>No requests yet.</p>
+  {% endfor %}
+
+  <a href="{% url 'receiver_dashboard' %}" class="btn btn-secondary">← Back</a>
+</div>

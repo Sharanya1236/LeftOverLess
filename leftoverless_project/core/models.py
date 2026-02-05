@@ -55,6 +55,31 @@ class Food(models.Model):
         null=True,
         blank=True
     )
+    requested_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='requests'
+    )
+
+    assigned_employee = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assigned_deliveries'
+    )
+
+    pickup_type = models.CharField(
+        max_length=20,
+        choices=[
+            ('self', 'Self Pickup'),
+            ('volunteer', 'Volunteer Delivery')
+        ],
+        null=True,
+        blank=True
+    )
 
     food_name = models.CharField(max_length=100)
     food_type = models.CharField(max_length=50)

@@ -225,7 +225,7 @@ def request_food(request, food_id):
 
     return redirect("available_food")
 
-
+# ----------------------- Donor Incoming Requests View -----------------------
 @login_required
 def donor_incoming_requests(request):
     foods = Food.objects.filter(
@@ -306,5 +306,138 @@ def reject_request(request, food_id):
     messages.error(request, "Request rejected.")
     return redirect('donor_requests')
 
-# --------------------------------- My Requests View ---------------------------
+# ------------------------------- Employee Dashboard View -----------------------
+@login_required
+def employee_dashboard(request):
+    available = Food.objects.filter(
+        status='assigned'
+    )
 
+    active = Food.objects.filter(
+        status='picked',
+        pickup_type='volunteer'
+    )
+
+    completed = Food.objects.filter(
+        status='delivered',
+        pickup_type='volunteer'
+    )
+
+    return render(request, "core/employee_dashboard.html", {
+        "available": available,
+        "active": active,
+        "completed": completed
+    })
+
+# --------------------------------- Employee Requests View -----------------------
+@login_required
+def employee_requests(request):
+    foods = Food.objects.filter(
+        pickup_type='volunteer',
+        requested_by__isnull=False,
+        assigned_employee__isnull=True,
+        status='requested'
+    )
+    return render(request, 'core/employee_requests.html', {
+        'foods': foods
+    })
+
+
+# -------------------------------- Employee Active View -----------------------
+@login_required
+def employee_active(request):
+    foods = Food.objects.filter(
+        status='picked',
+        pickup_type='volunteer'
+    )
+    return render(request, 'core/employee_active.html', {
+        'foods': foods
+    })
+
+@login_required
+def employee_active(request):
+    foods = Food.objects.filter(
+        assigned_employee=request.user,
+        status='assigned'
+    )
+    return render(request, 'core/employee_active.html', {'foods': foods})
+# -------------------------------- Employee History View -----------------------
+
+@login_required
+def employee_history(request):
+    foods = Food.objects.filter(
+        status='delivered',
+        pickup_type='volunteer'
+    )
+    return render(request, 'core/employee_history.html', {
+        'foods': foods
+    })
+
+
+# -------------------------------- Employee Accept Delivery View -----------------------
+
+@login_required
+def employee_accept_delivery(request, food_id):
+    food = get_object_or_404(Food, id=food_id)
+
+    food.assigned_employee = request.user
+    food.status = 'assigned'
+    food.save()
+
+    messages.success(request, "Delivery assigned to you.")
+    return redirect('employee_dashboard')
+
+# -------------------------------- Employee Mark Delivered View -----------------------
+@login_required
+def employee_mark_delivered(request, food_id):
+    food = get_object_or_404(
+        Food,
+        id=food_id,
+        status='picked',
+        pickup_type='volunteer'
+    )
+
+    food.status = 'delivered'
+    food.save()
+
+    messages.success(request, "✅ Delivery marked as delivered.")
+    return redirect('employee_history')
+
+@login_required
+def employee_mark_picked(request, food_id):
+    food = get_object_or_404(
+        Food,
+        id=food_id,
+        assigned_employee=request.user,
+        status='assigned'
+    )
+    food.status = 'picked'
+    food.save()
+
+    messages.success(request, "📦 Food picked up.")
+    return redirect('employee_active')
+@login_required
+def employee_mark_delivered(request, food_id):
+    food = get_object_or_404(
+        Food,
+        id=food_id,
+        assigned_employee=request.user,
+        status='picked'
+    )
+    food.status = 'delivered'
+    food.save()
+
+    messages.success(request, "✅ Food delivered successfully.")
+    return redirect('employee_history')
+@login_required
+def employee_history(request):
+    foods = Food.objects.filter(
+        assigned_employee=request.user,
+        status='delivered'
+    ).order_by('-created_at')
+    return render(request, 'core/employee_history.html', {'foods': foods})
+
+# -------------------------------- Logout View -----------------------
+def logout_view(request):
+    logout(request)
+    return redirect("login")

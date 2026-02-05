@@ -136,7 +136,13 @@
 <!-- Header -->
 <div class="header">
     <h2>Welcome, {{ request.user.profile.full_name }}</h2>
-    <a href="#">Logout</a>
+    <div style="text-align:right;">
+  <form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button class="btn btn-secondary">Logout</button>
+  </form>
+</div>
+
 </div>
 
 <!-- Main Content -->
