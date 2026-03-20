@@ -148,13 +148,18 @@ button:hover {
         <div class="role-card" data-role="volunteer">Volunteer</div>
     </div>
 
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <input type="hidden" name="role" id="role" value="donor">
 
         <input type="text" name="username" placeholder="Full Name" required>
         <input type="email" name="email" placeholder="Email address" required>
         <input type="password" name="password" placeholder="Password" required>
+
+        <!-- KYC Upload (only for receivers) -->
+         <div id="kyc-field" style="display:none;">
+            <input type="file" name="kyc_document" style="background:#fff;color:#555;padding:12px;border-radius:10px;">
+        </div>
 
         <button type="submit">Register</button>
     </form>
@@ -168,12 +173,19 @@ button:hover {
 <script>
 const cards = document.querySelectorAll('.role-card');
 const roleInput = document.getElementById('role');
+const kycField = document.getElementById('kyc-field');
 
 cards.forEach(card => {
     card.addEventListener('click', () => {
         cards.forEach(c => c.classList.remove('active'));
         card.classList.add('active');
         roleInput.value = card.dataset.role;
+
+        if(card.dataset.role === "receiver"){
+            kycField.style.display = "block";
+        } else {
+            kycField.style.display = "none";
+        }
     });
 });
 </script>

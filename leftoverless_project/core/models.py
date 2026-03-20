@@ -13,6 +13,10 @@ class Profile(models.Model):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     full_name = models.CharField(max_length=100, default="User")
 
+    # KYC fields
+    kyc_document = models.FileField(upload_to='kyc_documents/', null=True, blank=True)
+    kyc_verified = models.BooleanField(default=False)
+
     def __str__(self):
         return f"{self.full_name} ({self.role})"
 

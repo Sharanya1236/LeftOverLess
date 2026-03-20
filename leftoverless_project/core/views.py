@@ -28,6 +28,8 @@ def register_view(request):
         password = request.POST.get("password")
         role = request.POST.get("role")
 
+        kyc_file = request.FILES.get("kyc_document")
+
         if not all([username, email, password, role]):
             messages.error(request, "All fields are required")
             return redirect("register")
@@ -35,19 +37,22 @@ def register_view(request):
         if User.objects.filter(email=email).exists():
             messages.error(request, "Email already registered")
             return redirect("register")
+
         if User.objects.filter(username=username).exists():
             messages.error(request, "Username already exists")
             return redirect("register")
 
-
-        # 🔥 USE EMAIL AS USERNAME
         user = User.objects.create_user(
             username=email,
             email=email,
             password=password
         )
 
-        Profile.objects.create(user=user, role=role)
+        Profile.objects.create(
+            user=user,
+            role=role,
+            kyc_document=kyc_file
+        )
 
         print("USER CREATED, REDIRECTING TO LOGIN")
         return redirect("login")
@@ -118,6 +123,11 @@ def donor_dashboard(request):
 # ---------------- ADD FOOD ----------------
 @login_required
 def add_food(request):
+    profile = request.user.profile
+    # 🔥 Restrict access
+    if profile.role != "donor":
+        messages.error(request, "Only donors can add food")
+        return redirect("index")
     if request.method == "POST":
         prepared_time = timezone.datetime.fromisoformat(
             request.POST["prepared_time"]
@@ -212,6 +222,11 @@ def available_food(request):
 # ------------------------ Request Food View -----------------------
 @login_required
 def request_food(request, food_id):
+    profile = request.user.profile
+    if profile.role == "receiver" and not profile.kyc_verified:
+        messages.error(request, "Admin has not approved your KYC yet.")
+        return redirect("receiver_dashboard")
+    
     if request.method == "POST":
         food = get_object_or_404(Food, id=food_id)
 
@@ -226,27 +241,8 @@ def request_food(request, food_id):
     return redirect("available_food")
 
 # ----------------------- Donor Incoming Requests View -----------------------
-@login_required
-def donor_incoming_requests(request):
-    foods = Food.objects.filter(
-        donor=request.user,
-        status='requested'
-    ).select_related('requested_by')
-
-    return render(
-        request,
-        'core/incoming_requests.html',
-        {'foods': foods}
-    )
 
 
-
-@login_required
-def reject_request(request, food_id):
-    food = get_object_or_404(Food, id=food_id, donor=request.user)
-    food.status = 'available'
-    food.save()
-    return redirect('incoming_requests')
 
 # ------------------------- My Requests View -----------------------
 @login_required
@@ -260,15 +256,7 @@ def my_requests(request):
     })
 
 # --------------------------- Reject Request View -----------------------
-@login_required
-def reject_request(request, food_id):
-    food = get_object_or_404(Food, id=food_id, donor=request.user)
-    food.status = 'available'
-    food.requested_by = None
-    food.save()
 
-    messages.error(request, "❌ Request rejected.")
-    return redirect('incoming_requests')
 
 # --------------------------- Donor Requests View -----------------------
 from django.contrib.auth.decorators import login_required
@@ -281,14 +269,17 @@ def donor_requests(request):
         status='requested'
     ).select_related('requested_by')
 
-    return render(request, 'core/donor_requests.html', {
+    print("Logged in:", request.user)
+    print("Found foods:", foods)
+
+    return render(request, 'core/incoming_requests.html', {
         'foods': foods
     })
 
 # ------------------------------ Approve Request View -----------------------
 @login_required
 def approve_request(request, food_id):
-    food = Food.objects.get(id=food_id, donor=request.user)
+    food = get_object_or_404(Food, id=food_id, donor=request.user)
     food.status = 'assigned' if food.pickup_type == 'volunteer' else 'picked'
     food.save()
 

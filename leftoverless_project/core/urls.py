@@ -24,7 +24,7 @@ urlpatterns = [
     path('donor/requests/approve/<int:food_id>/', views.approve_request, name='approve_request'),
     path('donor/requests/reject/<int:food_id>/', views.reject_request, name='reject_request'),
     path('receiver/my-requests/', views.my_requests, name='my_requests'),
-    path('donor/incoming-requests/', views.donor_incoming_requests, name='donor_incoming_requests'),
+    path('donor/incoming-requests/', views.donor_requests, name='incoming_requests'),
     path('employee/dashboard/', views.employee_dashboard, name='employee_dashboard'),
     path('employee/requests/', views.employee_requests, name='employee_requests'),
     path('employee/active/', views.employee_active, name='employee_active'),
@@ -37,5 +37,6 @@ urlpatterns = [
     path('employee/delivered/<int:food_id>/', views.employee_mark_delivered, name='employee_mark_delivered'),
     path('employee/history/', views.employee_history, name='employee_history'),
     path('logout/', views.logout_view, name='logout'),
+    
 
 ]
